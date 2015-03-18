@@ -4,10 +4,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
 
+var db = require('./database');
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var agents = require('./routes/agents');
 
 var app = express();
 
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/agents', agents);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -55,21 +57,6 @@ app.use(function(err, req, res, next) {
     message: err.message,
     error: {}
   });
-});
-
-mongoose.connect('mongodb://localhost/test');
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function (callback) {
-  console.log("Connected to MongoDB");
-  var Agent = require('./models/agent');
-
-  var newAgent = new Agent({name: "Agent Name", real_estate: 'Real Estate', location: 'Brisbane'});
-  newAgent.ratings.push({comment: "Comment", user_id: '5', rating: '2'});
-  newAgent.save(function(err){
-    if (err) console.log("Error saving agent: " + err);
-  })
-
 });
 
 module.exports = app;
